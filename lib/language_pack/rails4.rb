@@ -51,6 +51,11 @@ class LanguagePack::Rails4 < LanguagePack::Rails3
       plugins = ["rails_serve_static_assets", "rails_stdout_logging"].reject { |plugin| bundler.has_gem?(plugin) }
       return false if plugins.empty?
 
+      # Allow suppression of rails_12factor warnings for API apps
+      # You can enable this by setting an ENV variable using the heroku CLI:
+      # heroku config:set SUPPRESS_12FACTOR_WARNINGS=true
+      return false if ENV['SUPPRESS_12FACTOR_WARNINGS'] == "true"
+
     warn <<-WARNING
 Include 'rails_12factor' gem to enable all platform features
 See https://devcenter.heroku.com/articles/rails-integration-gems for more information.

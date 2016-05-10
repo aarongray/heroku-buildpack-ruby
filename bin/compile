@@ -8,6 +8,45 @@ require "language_pack"
 require "language_pack/shell_helpers"
 
 begin
+  # The purpose of this section is to make the config / ENV variables for the
+  # application available to the buildpack.
+  #
+  # All output on STDOUT in the bin/compile script will be displayed to the user
+  # and stored with the build.
+  #
+  # The ENV variables are stored as files.
+  # The name of the file is the config key - ENV['SOME_VAR']
+  # The contents of the file is the config value - 'some_value'
+  env_dir = ARGV[2]
+
+  # This is a list of ENV variables to make available to the buildpack
+  whitelist_regex = /^(SUPPRESS_12FACTOR_WARNINGS)$/
+
+  if File.directory?(env_dir)
+    # change into the env folder
+    Dir.chdir(env_dir) do
+
+      # get all the files in the env folder and put them in an array
+      files = Dir.glob("*")
+
+      # iterate through the files / ENV variables
+      files.each do |variable|
+        if whitelist_regex =~ variable
+          puts "Exporting ENV variable to buildpack: " + variable
+
+          # set the key
+          env_variable_key = variable
+
+          # set the value by reading the file and stripping out the new lines
+          env_variable_value = IO.read(variable).gsub(/\n/, "")
+
+          # export to ENV variable
+          ENV[env_variable_key] = env_variable_value
+        end
+      end
+    end
+  end
+
   LanguagePack::Instrument.trace 'compile', 'app.compile' do
     LanguagePack::ShellHelpers.initialize_env(ARGV[2])
     if pack = LanguagePack.detect(ARGV[0], ARGV[1])

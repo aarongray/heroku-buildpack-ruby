@@ -4,7 +4,7 @@ This is a [Heroku Buildpack](http://devcenter.heroku.com/articles/buildpacks) fo
 
 ## The Subdirectory Feature
 
-The difference between this buildpack and heroku's standard Ruby buildpack is that you can **run an app in a project subdirectory**. In other words, your project doesn't need to be in the root directory; it could be in a subdirectory like `web/` or `rails/`.
+The main difference between this buildpack and heroku's standard Ruby buildpack is that you can **run an app in a project subdirectory**. In other words, your project doesn't need to be in the root directory; it could be in a subdirectory like `web/` or `rails/`.
 
 To make this work, you need to:
 
@@ -21,6 +21,13 @@ To make this work, you need to:
     ```
 
 **TODO:** One of these can be determined from the other; update the code to only require one environment variable.
+
+## Suppressing rails_12factor warnings
+
+The other feature of this buildpack is the ability to suppress deploy warnings about the [rails_12factor gem](https://github.com/heroku/rails_12factor). This is particularly useful for people who are using `rails-api` and do not want to install the [rails_serve_static_assets gem](https://github.com/heroku/rails_serve_static_assets) and have configured Rails to log to STDOUT, either [on their own](https://github.com/heroku/rails_12factor/issues/3#issuecomment-22463002) or using the [rails_stdout_logging gem](https://github.com/heroku/rails_stdout_logging).
+
+You can enable this feature by setting an ENV variable using the heroku CLI:
+`heroku config:set SUPPRESS_12FACTOR_WARNINGS=true`
 
 ## Usage
 
